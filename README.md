@@ -33,25 +33,3 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 # Notes
-
-Prediction data:
-Team Win/Loss record
-Team Win/ Loss record vs Opponent
-Number of starters injured
-Percentage of offensive line healthy
-Matchup statistics
-Average score
-Turnover margin
-Field position
-Weather
-
-const axios = require('axios')
-const cheerio = require('cheerio')
-
-async function fetchHTML(url) {
-const { data } = await axios.get(url)
-return cheerio.load(data)
-}
-const $ = await fetchHTML("https://www.teamrankings.com/nfl/stat/turnover-margin-per-game")
-
-console.log(`Site HTML: ${$.html()}\n\n`)
