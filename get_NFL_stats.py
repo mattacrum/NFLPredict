@@ -147,8 +147,8 @@ def getAvgTimeOfPossession():
     avg_TOP_data.close()
 
     page_soup = soup(avg_TOP_html, 'html.parser')
-# TODO THIS
-    # Create lists of teams and avg_point differential
+
+    # Create lists of teams and average time of possession
     teams = page_soup.findAll('td', {'class' : 'text-left nowrap'})
     avg_TOP = page_soup.findAll('td', {'class' : 'text-right'})
 
@@ -617,6 +617,31 @@ def getAvgTMandPD(avg_tm_scaled_dict, pd_scaled_dict):
     return tmpd_score
 
 '''
+Web scrape coaching score
+'''
+def getCoachingRank():
+    # Coaching score
+    table_url = 'https://www.lineups.com/articles/nfl-coaching-staff-rankings-entering-2020-season/'
+    table_data = urlopen(table_url)
+    table_html = table_data.read()
+    table_data.close()
+
+    page_soup = soup(table_html, 'html.parser')
+
+    # Find team names in order (rank)
+    teams_html = page_soup.findAll('h3')
+    teams = []
+    for line in teams_html:
+        teams.append(line.text)
+    for item in teams:
+        print(item)
+        if len(item) > 0:
+            if item[0] != '#':
+                teams.remove(item)
+        else:
+            teams.remove(item)
+    print(teams)
+'''
 Use dictWriter to write data to csv
 '''
 def writeToCSV( turnover_margins, pd_dict, PointsPerGame,
@@ -675,16 +700,18 @@ def main():
     printScore(OppPointsPerGame)
     printScore(turnover_margins)
     printScore(avg_top)
-
+    getCoachingRank()
 main()
 
 '''
 Data Points:
 Turnover margin
+Point differential
 Points per game
 Opponent points per game
-Coaching score
 Time of possession
+Home record vs Away record
+Primetime record if primetime
 
 Team1 ppg - team2 oppg
 24.0 - 18.7 = 5.3 Rams
