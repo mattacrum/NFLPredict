@@ -114,26 +114,29 @@ export class AppComponent {
       this.awayScore = 0;
 
       for (stat in homeTeam)
-        if (stat == 'opp_td_drive')
+        if (stat != 'team_name')
         {
-          if (awayTeam[stat] < homeTeam[stat])
+          if (stat == 'Opp_PointsPerGame')
           {
-            this.awayScore = this.awayScore + 1;
+            if (awayTeam[stat] < homeTeam[stat])
+            {
+              this.awayScore = this.awayScore + 1;
+            }
+            else
+            {
+              this.homeScore = this.homeScore + 1;
+            }
           }
           else
           {
-            this.homeScore = this.homeScore + 1;
-          }
-        }
-        else
-        {
-          if (awayTeam[stat] > homeTeam[stat])
-          {
-            this.awayScore = this.awayScore + 1;
-          }
-          else
-          {
-            this.homeScore = this.homeScore + 1;
+            if (awayTeam[stat] > homeTeam[stat])
+            {
+              this.awayScore = this.awayScore + 1;
+            }
+            else
+            {
+              this.homeScore = this.homeScore + 1;
+            }
           }
         }
         console.log(this.homeScore)

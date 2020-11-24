@@ -124,7 +124,7 @@ def getAvgPointDifferential():
         if(i > 0):
             if (j % 6) == 0:
             #    print(pd_text[i-3], pd_text[i-4])
-                temp = (pd_text[i-4] + pd_text[i-5]) / 2
+                temp = (pd_text[i-3] + pd_text[i-4] + pd_text[i-5]) / 3
                 avg_pd.append(temp)
         j+=1
 
@@ -135,7 +135,69 @@ def getAvgPointDifferential():
 
 '''
 Web Srape drive success rate and time of possession per drive
+
+****
+Find new URL
+****
 '''
+def getAvgTimeOfPossession():
+    avg_TOP_url = 'https://www.teamrankings.com/nfl/stat/average-time-of-possession-net-of-ot'
+    avg_TOP_data = urlopen(avg_TOP_url)
+    avg_TOP_html = avg_TOP_data.read()
+    avg_TOP_data.close()
+
+    page_soup = soup(avg_TOP_html, 'html.parser')
+# TODO THIS
+    # Create lists of teams and avg_point differential
+    teams = page_soup.findAll('td', {'class' : 'text-left nowrap'})
+    avg_TOP = page_soup.findAll('td', {'class' : 'text-right'})
+
+    TOP_text = []
+    teams_text = []
+    i = 0
+    for top in avg_TOP:
+        if i % 6 == 0:
+            TOP_text.append(top.text)
+        i += 1
+    print(TOP_text)
+    # Change abbreviated team names
+    for team in teams:
+        temp = team.text
+        if "LA" in temp:
+            if "Rams" in temp:
+                temp = "Los Angeles Rams"
+            if "Chargers" in temp:
+                temp = "Los Angeles Chargers"
+        if "NY" in temp:
+            if "Giants" in temp:
+                temp = "New York Giants"
+            if "Jets" in temp:
+                temp = "New York Jets"
+        teams_text.append(temp)
+
+    # Convert TOP to seconds
+    temp = []
+    for time in TOP_text:
+        temp.append(float(time[0:2]) * 60 + float(time[3:5]))
+
+    # Find average Time of Possession (scewed towards last few games)
+    TOP_text = temp
+    avg_top = []
+
+    j = 1
+    for i in range(len(TOP_text)):
+
+        if(i > 0):
+            if (j % 6) == 0:
+                temp = (TOP_text[i-4] + TOP_text[i-5]) / 2
+                avg_top.append(temp)
+        j+=1
+
+    # Create dictionary with team name & avg_point differential
+    top_dict = {teams_text[i]: TOP_text[i] for i in range(len(teams_text))}
+
+    return top_dict
+
 def getDSRandTOP():
     table_url = 'https://www.footballoutsiders.com/stats/nfl/overall-drive-statsoff/2020'
     table_data = urlopen(table_url)
@@ -174,66 +236,85 @@ def getDSRandTOP():
     return DSR, TOP, teams
 
 '''
-Web Scrape Touchdowns per drive
-TD per drive - Opponet TD per drive
+Web Scrape Points per Game
+Points per Game - Opp PPG
+
+****
+Find new URL
+****
+
 '''
-def getTDperDrive():
-    # TD per drive
-    table_url = 'https://www.footballoutsiders.com/stats/nfl/overall-drive-statsoff/2020'
+def getPointsPerGame():
+    # Offensive stats from espn
+    table_url = 'https://www.espn.com/nfl/stats/team'
     table_data = urlopen(table_url)
     table_html = table_data.read()
     table_data.close()
 
     page_soup = soup(table_html, 'html.parser')
 
-    # List of tables containing drive stats
-    table = page_soup.findAll('tbody', {})
-    table = table[1]
-    # List of entries in the table
-    entries = table.findAll('tr',{})
+    # List of tables containing team names and stats
+    tables = page_soup.findAll('tbody', {})
 
-    # Create lists of team names, time of possession, & drive success rate
+    # Table of team names
+    teams_html = tables[0]
+    # Create list of team names
     teams = []
-    td_drive = []
+    for team in teams_html:
+        teams.append(team.text.splitlines())
 
-    for entry in entries:
-        team_stats = entry.text.splitlines()
-        teams.append(team_stats[1])
-        td_drive.append(team_stats[3])
+    # Table of offensive stats
+    stats_html = tables[1]
+    stats_html = stats_html.findAll('td', {})
+    ppg = []
 
+    i = 1
+    for stat in stats_html:
+        if i % 9 == 0:
+            ppg.append(float(stat.text))
+        i += 1
+
+
+    # Create point per game Dictionaty
+    ppg_dict = {teams[i][0]: float(ppg[i]) for i in range(len(teams))}
+
+    return ppg_dict
+
+def getOppPointsPerGame():
+    # Deffensive stats from espn
+    table_url = 'https://www.espn.com/nfl/stats/team/_/view/defense'
+    table_data = urlopen(table_url)
+    table_html = table_data.read()
+    table_data.close()
+
+    page_soup = soup(table_html, 'html.parser')
+
+    # List of tables containing team names and stats
+    tables = page_soup.findAll('tbody', {})
+
+    # Table of team names
+    teams_html = tables[0]
+    # Create list of team names
+    teams = []
+    for team in teams_html:
+        teams.append(team.text.splitlines())
+
+    # Table of offensive stats
+    stats_html = tables[1]
+    stats_html = stats_html.findAll('td', {})
+    oppg = []
+
+    i = 1
+    for stat in stats_html:
+        if i % 9 == 0:
+            oppg.append(float(stat.text))
+        i += 1
+
+# TODO Continue
     # Create TD per drive Dictionaty
-    td_drive_dict = {teams[i]: float(td_drive[i]) for i in range(len(teams))}
+    oppg_dict = {teams[i][0]: float(oppg[i]) for i in range(len(teams))}
 
-    return td_drive_dict
-
-def getOppTDperDrive():
-    # Opponent TD per drive
-    table_url = 'https://www.footballoutsiders.com/stats/nfl/overall-drive-statsdef/2020'
-    table_data = urlopen(table_url)
-    table_html = table_data.read()
-    table_data.close()
-
-    page_soup = soup(table_html, 'html.parser')
-
-    # List of tables containing drive stats
-    table = page_soup.findAll('tbody', {})
-    table = table[1]
-    # List of entries in the table
-    entries = table.findAll('tr',{})
-
-    # Create lists of team names, time of possession, & drive success rate
-    teams = []
-    opp_td_drive = []
-
-    for entry in entries:
-        team_stats = entry.text.splitlines()
-        teams.append(team_stats[1])
-        opp_td_drive.append(team_stats[3])
-
-    # Create Opponent TD per Drive Dictionaty
-    opp_td_drive_dict = {teams[i]: float(opp_td_drive[i]) for i in range(len(teams))}
-
-    return opp_td_drive_dict
+    return oppg_dict
 
 '''
 Defense
@@ -242,7 +323,7 @@ Defense
 
 '''
 Web Scrape Opponent Yards per Game
-*Add Opponent Points per game
+* Probably won't use
 '''
 def getOppYPG():
     opp_ypg_url = 'https://www.teamrankings.com/nfl/stat/opponent-yards-per-game'
@@ -473,7 +554,7 @@ def changeAbbrNames(score):
     return score
 
 '''
-Print power rankings based on TOP and DSR
+Print score sorted
 '''
 def printScore(score):
     print("Power Rankings:")
@@ -538,18 +619,23 @@ def getAvgTMandPD(avg_tm_scaled_dict, pd_scaled_dict):
 '''
 Use dictWriter to write data to csv
 '''
-def writeToCSV( avg_tm_dict, pd_dict, tmpd_score, dsrtop_score, td_drive_dict, opp_td_drive):
+def writeToCSV( turnover_margins, pd_dict, PointsPerGame,
+                OppPointsPerGame, avg_top):
     myFile = open('nfl_team_stats.csv', 'w')
     with myFile:
-        myFields = ['team_name', 'turnover_margin', 'point_differential', 'tm_pd_score', 'time_of_possession_DSR', 'off_td_drive', 'opp_td_drive']
+        myFields = ['team_name', 'turnover_margin', 'point_differential', 'PointsPerGame',
+                    'Opp_PointsPerGame', 'Time_of_Possession']
         writer = csv.DictWriter(myFile, fieldnames=myFields)
         writer.writeheader()
 
-        for team in tmpd_score:
-            writer.writerow({ 'team_name' : team, 'turnover_margin' : round(avg_tm_dict[team], 2), 'point_differential' : round(pd_dict[team], 2) ,
-                              'tm_pd_score' : round(tmpd_score[team], 2), 'time_of_possession_DSR' : round(dsrtop_score[team], 2),
-                              'off_td_drive' :  td_drive_dict[team], 'opp_td_drive' : opp_td_drive[team] })
+        for team in turnover_margins:
+            writer.writerow({ 'team_name' : team, 'turnover_margin' : round(turnover_margins[team], 2), 'point_differential' : round(pd_dict[team], 2) ,
+                              'PointsPerGame' : round(PointsPerGame[team], 2), 'Opp_PointsPerGame' : round(OppPointsPerGame[team], 2),
+                              'Time_of_Possession' :  avg_top[team] })
 
+'''
+Change city names to team names
+'''
 def changeTeamNames(teams1, teams2):
     teams = {}
     for team1 in teams1:
@@ -557,36 +643,53 @@ def changeTeamNames(teams1, teams2):
             if team1 in team2:
                 teams[team2] = teams1[team1]
 
-
     return teams
 
 def main():
     turnover_margins = getTurnoverMargins()
     avg_point_differentials = getAvgPointDifferential()
-    TDperDrive = getTDperDrive()
-    OppTDperDrive = getOppTDperDrive()
+    PointsPerGame = getPointsPerGame()
+    OppPointsPerGame = getOppPointsPerGame()
     OppYPG = getOppYPG()
-
-    DSR, TOP, teams = getDSRandTOP()
-    DSRTOP_score = scaleDSRTOP(DSR, TOP, teams)
+    avg_top = getAvgTimeOfPossession()
+    #DSR, TOP, teams = getDSRandTOP()
+    #DSRTOP_score = scaleDSRTOP(DSR, TOP, teams)
 
     avg_tm_scaled_dict, pd_scaled_dict = scaleTMandPD(turnover_margins, avg_point_differentials)
     tmpd_score = getAvgTMandPD(avg_tm_scaled_dict, pd_scaled_dict)
 
 
-    TDperDrive = changeAbbrNames(TDperDrive)
-    OppTDperDrive = changeAbbrNames(OppTDperDrive)
-    DSRTOP_score = changeAbbrNames(DSRTOP_score)
+    #TDperDrive = changeAbbrNames(TDperDrive)
+    #OppTDperDrive = changeAbbrNames(OppTDperDrive)
+    #DSRTOP_score = changeAbbrNames(DSRTOP_score)
 
-    turnover_margins = changeTeamNames(turnover_margins, DSRTOP_score)
-    avg_point_differentials = changeTeamNames(avg_point_differentials, DSRTOP_score)
-    tmpd_score = changeTeamNames(tmpd_score, DSRTOP_score)
+    turnover_margins = changeTeamNames(turnover_margins, PointsPerGame)
+    avg_point_differentials = changeTeamNames(avg_point_differentials, PointsPerGame)
+    avg_top = changeTeamNames(avg_top, PointsPerGame)
+    #tmpd_score = changeTeamNames(tmpd_score, DSRTOP_score)
 
-    writeToCSV(turnover_margins, avg_point_differentials, tmpd_score, DSRTOP_score, TDperDrive, OppTDperDrive)
-    #printScore(DSRTOP_score)
+    writeToCSV(turnover_margins, avg_point_differentials, PointsPerGame,
+               OppPointsPerGame, avg_top)
+
+    printScore(PointsPerGame)
+    printScore(OppPointsPerGame)
+    printScore(turnover_margins)
+    printScore(avg_top)
+
 main()
 
 '''
-If team has better TOPDSR & lower opp_td_drive, HAMMER
-If team has better td_drive and lower opp_td_drive,
+Data Points:
+Turnover margin
+Points per game
+Opponent points per game
+Coaching score
+Time of possession
+
+Team1 ppg - team2 oppg
+24.0 - 18.7 = 5.3 Rams
+29.6 - 22.6 = 7.0 TB
+0.76 Rams
+0.16 TB
+
 '''
