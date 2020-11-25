@@ -14,8 +14,6 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <p> Selected Home Team: {{selectedHomeTeam}} </p>
-    <p> Score: {{homeScore}} </p>
     </div>
     <div class="container">
     <h4 class="subHeader">Away Team</h4>
@@ -27,8 +25,6 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <p> Selected Away Team: {{selectedAwayTeam}} </p>
-    <p> Score: {{awayScore}} </p>
     </div>
     <br>
     <br>
@@ -39,14 +35,13 @@
   <br>
   <br>
   <br>
-  <br>
-  <br>
-  <br>
   <div>
+    <br>
     <button class="winnerButton" (click)="getAllNFLData(selectedHomeTeam, selectedAwayTeam)">Predict Winner</button>
     <br>
     <br>
     <h2 class="winnerResult">{{ winner }}</h2>
+    <h3 class="confidence">{{ percentageConfidence }}</h3>
   </div>
 </body>
 <router-outlet></router-outlet>

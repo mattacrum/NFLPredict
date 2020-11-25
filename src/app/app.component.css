@@ -48,6 +48,16 @@
   color: white;
 }
 
+.confidence {
+  width: 80%;
+  text-align: center;
+  font-size: 16px;
+  margin-left: 10%;
+  margin-right: 10%;
+  background-color: #2372A5;
+  color: white;
+}
+
 .body {
   background-color: #F2EE2B;
   border-style: solid;

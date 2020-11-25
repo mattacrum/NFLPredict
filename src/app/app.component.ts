@@ -24,6 +24,8 @@ export class AppComponent {
   homeScore: number;
   awayScore: number;
 
+  percentageConfidence: string;
+
   nflData: JSON;
 
   constructor(private httpClient: HttpClient) {
@@ -142,9 +144,15 @@ export class AppComponent {
         console.log(this.homeScore)
         console.log(this.awayScore)
         if (this.homeScore >= this.awayScore)
+        {
           this.winner = homeTeam['team_name'];
+          this.percentageConfidence = (this.homeScore / 5 * 100) + '% Confidence';
+        }
         else
+        {
           this.winner = awayTeam['team_name'];
+          this.percentageConfidence = (this.awayScore / 5 * 100) + '% Confindence';
+        }
         console.log(this.winner);
       })
   }
