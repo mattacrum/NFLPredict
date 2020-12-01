@@ -14,6 +14,10 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <p *ngFor="let article of homeNews">
+    {{  article.title }}
+    {{ article.content }}
+    </p>
     </div>
     <div class="container">
     <h4 class="subHeader">Away Team</h4>
@@ -25,10 +29,15 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <p *ngFor="let article of awayNews">
+    {{  article.title }}
+    {{ article.content }}
+    </p>
     </div>
     <br>
     <br>
     </form>
+
   </div>
   <br>
   <br>
@@ -40,6 +49,8 @@
     <button class="winnerButton" (click)="getAllNFLData(selectedHomeTeam, selectedAwayTeam)">Predict Winner</button>
     <br>
     <br>
+    <br>
+
     <h2 class="winnerResult">{{ winner }}</h2>
     <h3 class="confidence">{{ percentageConfidence }}</h3>
   </div>

@@ -3,6 +3,7 @@ import { FormControl } from "@angular/forms";
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
 
 export interface Team {
   name: string;
@@ -24,14 +25,21 @@ export class AppComponent {
   homeScore: number;
   awayScore: number;
 
+  articles: JSON;
+  homeNews : Array<any>;
+  awayNews : Array<any>;
+
   percentageConfidence: string;
 
   nflData: JSON;
+  nflNews: JSON;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private newsApi : ApiService) {
   }
 
   ngOnInit() {
+    this.newsApi.getNews().subscribe(data => this.articles = data['articles'] as JSON);
+
   }
 
   teams: Team[] = [
@@ -70,11 +78,14 @@ export class AppComponent {
   ];
 
   getAllNFLData(selectedHomeTeam, selectedAwayTeam) {
+      document.body.style.backgroundColor = "#F2EE2B";
+// Stat data from local API
       this.httpClient.get('http://127.0.0.1:5002/nfl_teams').subscribe(data => {
       this.nflData = data as JSON;
 
       var homeTeam;
       var awayTeam;
+
 // Get data for selected teams
       for (var team in this.nflData)
       {
@@ -90,6 +101,30 @@ export class AppComponent {
           }
         }
       }
+// Get news articles for each selected team
+
+      var homeNews = new Array();
+      var awayNews = new Array();
+
+      var home = selectedHomeTeam.split(" ", 3);
+      var away = selectedAwayTeam.split(" ", 3);
+
+      for ( var article in this.articles )
+      {
+        if (this.articles[article]['content'] != null)
+        {
+          if (this.articles[article]['content'].includes(home[home.length-1]))
+          {
+            homeNews.push(this.articles[article]);
+          }
+          if (this.articles[article]['content'].includes(away[away.length-1]))
+          {
+            awayNews.push(this.articles[article]);
+          }
+        }
+      }
+      this.homeNews = homeNews;
+      this.awayNews = awayNews;
 
 // Change values from strings to floats
       for (var stat in homeTeam)
@@ -112,10 +147,11 @@ export class AppComponent {
       console.log(awayTeam);
 
 // Find winner    TODO: Adjust Algorithm
-      this.homeScore = 0;
+      this.homeScore = 0.5;
       this.awayScore = 0;
 
       for (stat in homeTeam)
+      {
         if (stat != 'team_name')
         {
           if (stat == 'Opp_PointsPerGame')
@@ -141,19 +177,23 @@ export class AppComponent {
             }
           }
         }
+      }
         console.log(this.homeScore)
         console.log(this.awayScore)
         if (this.homeScore >= this.awayScore)
         {
           this.winner = homeTeam['team_name'];
-          this.percentageConfidence = (this.homeScore / 5 * 100) + '% Confidence';
+          this.percentageConfidence = ((this.homeScore-0.5) / 5 * 100 - 1) + '% Confidence';
         }
         else
         {
           this.winner = awayTeam['team_name'];
-          this.percentageConfidence = (this.awayScore / 5 * 100) + '% Confindence';
+          this.percentageConfidence = (this.awayScore / 5 * 100 - 1) + '% Confindence';
         }
+
         console.log(this.winner);
       })
   }
+
+
 }

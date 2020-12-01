@@ -278,6 +278,11 @@ def getPointsPerGame():
     # Create point per game Dictionaty
     ppg_dict = {teams[i][0]: float(ppg[i]) for i in range(len(teams))}
 
+    # Change Washington
+    key = "Washington"
+    ppg_dict["Washington Football Team"] = ppg_dict[key]
+    del ppg_dict[key]
+
     return ppg_dict
 
 def getOppPointsPerGame():
@@ -310,9 +315,13 @@ def getOppPointsPerGame():
             oppg.append(float(stat.text))
         i += 1
 
-# TODO Continue
-    # Create TD per drive Dictionaty
+    # Create Opponent Points per Game Dictionaty
     oppg_dict = {teams[i][0]: float(oppg[i]) for i in range(len(teams))}
+
+    # Change Washington
+    key = "Washington"
+    oppg_dict["Washington Football Team"] = oppg_dict[key]
+    del oppg_dict[key]
 
     return oppg_dict
 
@@ -418,9 +427,6 @@ def scaleDSRTOP(DSR,TOP, teams):
     return dsrtop_score
 
 def changeAbbrNames(score):
-    temp = {}
-    #print(dsrtop_score.items())
-    dsrtop_score_temp = score
 
     # Change abbreviated team names
     key = "GB"
@@ -653,7 +659,7 @@ def writeToCSV( turnover_margins, pd_dict, PointsPerGame,
         writer = csv.DictWriter(myFile, fieldnames=myFields)
         writer.writeheader()
 
-        for team in turnover_margins:
+        for team in PointsPerGame:
             writer.writerow({ 'team_name' : team, 'turnover_margin' : round(turnover_margins[team], 2), 'point_differential' : round(pd_dict[team], 2) ,
                               'PointsPerGame' : round(PointsPerGame[team], 2), 'Opp_PointsPerGame' : round(OppPointsPerGame[team], 2),
                               'Time_of_Possession' :  avg_top[team] })
@@ -692,7 +698,6 @@ def main():
     avg_point_differentials = changeTeamNames(avg_point_differentials, PointsPerGame)
     avg_top = changeTeamNames(avg_top, PointsPerGame)
     #tmpd_score = changeTeamNames(tmpd_score, DSRTOP_score)
-
     writeToCSV(turnover_margins, avg_point_differentials, PointsPerGame,
                OppPointsPerGame, avg_top)
 
@@ -712,11 +717,7 @@ Opponent points per game
 Time of possession
 Home record vs Away record
 Primetime record if primetime
+record of last 3 games
 
-Team1 ppg - team2 oppg
-24.0 - 18.7 = 5.3 Rams
-29.6 - 22.6 = 7.0 TB
-0.76 Rams
-0.16 TB
 
 '''
