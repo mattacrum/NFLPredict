@@ -32,7 +32,6 @@ export class AppComponent {
   percentageConfidence: string;
 
   nflData: JSON;
-  nflNews: JSON;
 
   constructor(private httpClient: HttpClient, private newsApi : ApiService) {
   }
@@ -125,7 +124,7 @@ export class AppComponent {
       }
       this.homeNews = homeNews;
       this.awayNews = awayNews;
-
+      console.log(homeNews)
 // Change values from strings to floats
       for (var stat in homeTeam)
       {
@@ -142,9 +141,6 @@ export class AppComponent {
           awayTeam[stat] = Number(awayTeam[stat])
         }
       }
-
-      console.log(homeTeam);
-      console.log(awayTeam);
 
 // Find winner    TODO: Adjust Algorithm
       this.homeScore = 0.5;
@@ -178,17 +174,28 @@ export class AppComponent {
           }
         }
       }
+      console.log((homeTeam['PointsPerGame'] - awayTeam['Opp_PointsPerGame']))
+      console.log((awayTeam['PointsPerGame'] - homeTeam['Opp_PointsPerGame']))
+      if ((homeTeam['PointsPerGame'] - awayTeam['Opp_PointsPerGame']) >
+          (awayTeam['PointsPerGame'] - homeTeam['Opp_PointsPerGame']))
+      {
+        this.homeScore = this.homeScore + 1;
+      }
+      else
+      {
+        this.awayScore = this.awayScore + 1;
+      }
         console.log(this.homeScore)
         console.log(this.awayScore)
         if (this.homeScore >= this.awayScore)
         {
           this.winner = homeTeam['team_name'];
-          this.percentageConfidence = ((this.homeScore-0.5) / 5 * 100 - 1) + '% Confidence';
+          this.percentageConfidence = ((this.homeScore-0.5) / 6 * 100 - 1).toFixed(2) + '% Confidence';
         }
         else
         {
           this.winner = awayTeam['team_name'];
-          this.percentageConfidence = (this.awayScore / 5 * 100 - 1) + '% Confindence';
+          this.percentageConfidence = (this.awayScore / 6 * 100 - 1).toFixed(2) + '% Confindence';
         }
 
         console.log(this.winner);

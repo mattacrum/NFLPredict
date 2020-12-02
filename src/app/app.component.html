@@ -1,5 +1,4 @@
 
-
 <body class="body">
   <h1 class='header'>NFL Game Predictor</h1>
   <div class="TeamPicker">
@@ -14,10 +13,19 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <p *ngFor="let article of homeNews">
+    <div *ngFor="let article of homeNews">
+    <a href='{{article.url}}' target="_blank">
+    <h2>
     {{  article.title }}
+    </h2>
+    </a>
+    <p>
     {{ article.content }}
     </p>
+    <p class="small">
+    - {{ article.source['name'] }}
+    </p>
+    </div>
     </div>
     <div class="container">
     <h4 class="subHeader">Away Team</h4>
@@ -29,10 +37,19 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <p *ngFor="let article of awayNews">
+    <div *ngFor="let article of awayNews">
+    <a href='{{article.url}}' target="_blank">
+    <h2>
     {{  article.title }}
+    </h2>
+    </a>
+    <p>
     {{ article.content }}
     </p>
+    <p class="small">
+     - {{ article.source['name'] }}
+    </p>
+    </div>
     </div>
     <br>
     <br>

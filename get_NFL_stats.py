@@ -650,8 +650,7 @@ def getCoachingRank():
 '''
 Use dictWriter to write data to csv
 '''
-def writeToCSV( turnover_margins, pd_dict, PointsPerGame,
-                OppPointsPerGame, avg_top):
+def writeToCSV( turnover_margins, pd_dict, PointsPerGame, OppPointsPerGame, avg_top):
     myFile = open('nfl_team_stats.csv', 'w')
     with myFile:
         myFields = ['team_name', 'turnover_margin', 'point_differential', 'PointsPerGame',
@@ -689,10 +688,6 @@ def main():
     avg_tm_scaled_dict, pd_scaled_dict = scaleTMandPD(turnover_margins, avg_point_differentials)
     tmpd_score = getAvgTMandPD(avg_tm_scaled_dict, pd_scaled_dict)
 
-
-    #TDperDrive = changeAbbrNames(TDperDrive)
-    #OppTDperDrive = changeAbbrNames(OppTDperDrive)
-    #DSRTOP_score = changeAbbrNames(DSRTOP_score)
 
     turnover_margins = changeTeamNames(turnover_margins, PointsPerGame)
     avg_point_differentials = changeTeamNames(avg_point_differentials, PointsPerGame)
