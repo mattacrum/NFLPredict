@@ -198,50 +198,8 @@ def getAvgTimeOfPossession():
 
     return top_dict
 
-def getDSRandTOP():
-    table_url = 'https://www.footballoutsiders.com/stats/nfl/overall-drive-statsoff/2020'
-    table_data = urlopen(table_url)
-    table_html = table_data.read()
-    table_data.close()
-
-    page_soup = soup(table_html, 'html.parser')
-
-    # List of tables containing drive stats
-    table = page_soup.findAll('tbody', {})
-    table = table[0]
-    # List of entries in the table
-    entries = table.findAll('tr',{})
-
-    # Create lists of team names, time of possession, & drive success rate
-    teams = []
-    TOP = []
-    DSR = []
-    for entry in entries:
-        team_stats = entry.text.splitlines()
-        teams.append(team_stats[1])
-        TOP.append(team_stats[17])
-        DSR.append(float(team_stats[19]))
-
-    # Create TOP Dictionaty
-    TOP_dict = {teams[i]: TOP[i] for i in range(len(teams))}
-    #Create DSR Dictionary
-    DSR_dict = {teams[i]: DSR[i] for i in range(len(teams))}
-
-    # Convert TOP to seconds
-    temp = []
-    for time in TOP:
-        temp.append(float(time[0]) * 60 + float(time[2]) * 10 + float(time[3]))
-    TOP = temp
-    TOP_dict = {teams[i]: TOP[i] for i in range(len(teams))}
-    return DSR, TOP, teams
-
 '''
 Web Scrape Points per Game
-Points per Game - Opp PPG
-
-****
-Find new URL
-****
 
 '''
 def getPointsPerGame():
@@ -377,54 +335,6 @@ def getOppYPG():
     #print(opp_ypg_dict)
 
     return opp_ypg_dict
-
-'''
-Scale TOP and DSR
-*possibly subtract defensive TOP and DSR
-
-Formula to scale numbers to certain range:
-Y = n * (X - Xmin) / Xrange
-Y - adjusted variable
-X - original variable
-Xrange = Xmax - Xmin
-n = upper limit of rescaled value
-
-'''
-def scaleDSRTOP(DSR,TOP, teams):
-    min_TOP = min(TOP)
-    max_TOP= max(TOP)
-    range_TOP = max_TOP - min_TOP
-
-    min_DSR = min(DSR)
-    max_DSR = max(DSR)
-    range_DSR = max_DSR - min_DSR
-
-    TOP_scaled = []
-    for time in TOP:
-        temp = (time - min_TOP)/range_TOP * 100
-        TOP_scaled.append(temp)
-
-    DSR_scaled = []
-    for stat in DSR:
-        temp = (stat - min_DSR)/range_DSR * 100
-        DSR_scaled.append(temp)
-
-    TOP_dict_scaled = {teams[i]: TOP_scaled[i] for i in range(len(teams))}
-    DSR_dict_scaled = {teams[i]: DSR[i] for i in range(len(teams))}
-
-    '''
-    DSR percentage multiplied by TOP
-    '''
-
-    dsrtop_score = {}
-    for team1 in TOP_dict_scaled:
-        for team2 in DSR_dict_scaled:
-            if team1 in team2:
-                #dsrtop_score[team2] = (TOP_dict_scaled[team1] + DSR_dict_scaled[team2]) / 2
-                dsrtop_score[team2] = TOP_dict_scaled[team1] * DSR_dict_scaled[team2]
-    # TODO fix this ^
-    #print(sorted(dsrtop_score.items(), key=lambda x: x[1], reverse=True))
-    return dsrtop_score
 
 def changeAbbrNames(score):
 
@@ -572,6 +482,13 @@ def printScore(score):
 
 '''
 Scale average turnover margins and point differentials
+
+Formula to scale numbers to certain range:
+Y = n * (X - Xmin) / Xrange
+Y - adjusted variable
+X - original variable
+Xrange = Xmax - Xmin
+n = upper limit of rescaled value
 '''
 def scaleTMandPD(avg_tm, pd_text):
     temp_tm= []
@@ -647,6 +564,7 @@ def getCoachingRank():
         else:
             teams.remove(item)
     print(teams)
+    
 '''
 Use dictWriter to write data to csv
 '''
@@ -682,8 +600,7 @@ def main():
     OppPointsPerGame = getOppPointsPerGame()
     OppYPG = getOppYPG()
     avg_top = getAvgTimeOfPossession()
-    #DSR, TOP, teams = getDSRandTOP()
-    #DSRTOP_score = scaleDSRTOP(DSR, TOP, teams)
+
 
     avg_tm_scaled_dict, pd_scaled_dict = scaleTMandPD(turnover_margins, avg_point_differentials)
     tmpd_score = getAvgTMandPD(avg_tm_scaled_dict, pd_scaled_dict)
