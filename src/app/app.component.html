@@ -1,0 +1,75 @@
+
+<body class="body">
+  <h1 class='header'>NFL Game Predictor</h1>
+  <div class="TeamPicker">
+    <form>
+    <div class="container">
+    <h4 class="subHeader">Home Team</h4>
+    <mat-form-field class="HomeTeamPicker" appearance="fill">
+      <mat-label>Select a team:</mat-label>
+      <mat-select [(ngModel)]="selectedHomeTeam" name="team">
+        <mat-option *ngFor="let team of teams" [value]="team.name">
+          {{team.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div *ngFor="let article of homeNews">
+    <a href='{{article.url}}' target="_blank">
+    <h2>
+    {{  article.title }}
+    </h2>
+    </a>
+    <p>
+    {{ article.content }}
+    </p>
+    <p class="small">
+    - {{ article.source['name'] }}
+    </p>
+    </div>
+    </div>
+    <div class="container">
+    <h4 class="subHeader">Away Team</h4>
+    <mat-form-field class="AwayTeamPicker" appearance="fill">
+      <mat-label>Select a team:</mat-label>
+      <mat-select [(ngModel)]="selectedAwayTeam" name="team">
+        <mat-option *ngFor="let team of teams" [value]="team.name">
+          {{team.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div *ngFor="let article of awayNews">
+    <a href='{{article.url}}' target="_blank">
+    <h2>
+    {{  article.title }}
+    </h2>
+    </a>
+    <p>
+    {{ article.content }}
+    </p>
+    <p class="small">
+     - {{ article.source['name'] }}
+    </p>
+    </div>
+    </div>
+    <br>
+    <br>
+    </form>
+
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <div>
+    <br>
+    <button class="winnerButton" (click)="getAllNFLData(selectedHomeTeam, selectedAwayTeam)">Predict Winner</button>
+    <br>
+    <br>
+    <br>
+
+    <h2 class="winnerResult">{{ winner }}</h2>
+    <h3 class="confidence">{{ percentageConfidence }}</h3>
+  </div>
+</body>
+<router-outlet></router-outlet>
