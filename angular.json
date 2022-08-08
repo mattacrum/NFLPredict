@@ -123,9 +123,5 @@
       }
     }
   },
-<<<<<<< HEAD
   "defaultProject": "NFLPredict"
-=======
-  "defaultProject": "NFLPedict"
->>>>>>> b30ba4bc3d64094dce331cabd4b42b670b234a3f
 }
